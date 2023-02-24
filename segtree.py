@@ -3,7 +3,9 @@ from collections.abc import Callable
 class SegmentTree:
     def __init__(self, arr: list[int], merge_function: Callable[[int, int], int]):
         self.N = len(arr)
-        self.tree: list[int] = [0] * 4 * self.N                 # Number of levels = ceil(log(N)) + 1 <= logN + 2; Number of nodes = 2^levels - 1 < 4N
+        self.EMPTY = float("inf")
+
+        self.tree: list[int] = [self.EMPTY] * (4 * self.N)                 # Number of levels = ceil(log(N)) + 1 <= logN + 2; Number of nodes = 2^levels - 1 < 4N
         self.merge_function = merge_function
         self.build(arr, 0, self.N - 1)
     
@@ -68,7 +70,7 @@ class SegmentTree:
     def get_right_child(self, n: int) -> int:
         return 2 * n + 2
     
-    def __str__(self, max_level: int = 8) -> str:
+    def __str__(self, max_level: int = 8, spacing: int = 3) -> str:
         #        A        
         #    A       B    
         #  A   B   C   D  
@@ -94,23 +96,33 @@ class SegmentTree:
         
 
         output_str = ""
-        last_level_size = 1 + 2 * len(output[-1])
+        last_level_size = 1 + 2 * (2 ** (levels - 1))
 
         for l in range(levels):
             padding = 2 ** (levels - l - 1)
             n = 2 ** l
 
             S = (last_level_size - 2 * padding)         # d = spaces between elements
-            d = (S - n) // (n - 1)                      # (n - 1) * (d + 1) + 1 = S; nd + n - d - 1 + 1 = S; nd + n - d = S; d(n - 1) = S - n; d = S - n // n - 1
+            d = ((S - n) // (n - 1)) if n > 1 else 0    # (n - 1) * (d + 1) + 1 = S; nd + n - d - 1 + 1 = S; nd + n - d = S; d(n - 1) = S - n; d = S - n // n - 1
 
-            output_str += ' ' * padding
+            space = ' ' * spacing
+            output_str += space * padding
             
             for i in range(n - 1):
-                output_str += str(output[l][i]) + (' ' * d)
+                output_str += str(output[l][i]) + (space * d)
             
-            output_str += output[l][-1]
-            output_str += ' ' * padding
+            output_str += str(output[l][-1])
+            output_str += space * padding
             
             output_str += '\n'
         
         return output_str
+
+def test():
+    A = [1,3,5,7,9,11]
+    S = SegmentTree(A, lambda x, y: x + y)
+
+    print(S)
+    print(S.get_interval(1, 4))
+
+test()
