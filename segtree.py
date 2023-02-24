@@ -5,7 +5,7 @@ class SegmentTree:
         self.N = len(arr)
         self.EMPTY = float("inf")
 
-        self.tree: list[int] = [self.EMPTY] * (4 * self.N)                 # Number of levels = ceil(log(N)) + 1 <= logN + 2; Number of nodes = 2^levels - 1 < 4N
+        self.tree: list[int] = [self.EMPTY] * (4 * self.N - 1)                 # Number of levels = ceil(log(N)) + 1 <= logN + 2; Number of nodes = 2^levels - 1 < 4N
         self.merge_function = merge_function
         self.build(arr, 0, self.N - 1)
     
@@ -26,6 +26,8 @@ class SegmentTree:
         return self.tree[n]
 
     def get_interval(self, l: int, r: int) -> int:
+        assert 0 <= l <= r <= self.N - 1
+
         def helper(l: int, r: int, n: int, cl: int, cr: int) -> int:
             if (l, r) == (cl, cr):
                 return self.tree[n]
@@ -70,7 +72,7 @@ class SegmentTree:
     def get_right_child(self, n: int) -> int:
         return 2 * n + 2
     
-    def __str__(self, max_level: int = 8, spacing: int = 3) -> str:
+    def __str__(self, max_level: int = 8, spacing: int = 2) -> str:
         #        A        
         #    A       B    
         #  A   B   C   D  
@@ -87,42 +89,85 @@ class SegmentTree:
             current_level.append(self.tree[i])
 
             if len(current_level) == 2 ** exp:
-                output.append(current_level)
+                output.append(current_level[:])
                 current_level.clear()
-                exp += 1
 
                 if exp + 1 == max(max_level, levels):
                     break
-        
+                else:
+                    exp += 1
 
         output_str = ""
-        last_level_size = 1 + 2 * (2 ** (levels - 1))
+
+        max_point_width = max([len(str(el)) for el in self.tree])
+        point_span = max_point_width * spacing
+
+        line_width = point_span * (2 ** (levels - 1))
+        line_space = 4
 
         for l in range(levels):
-            padding = 2 ** (levels - l - 1)
-            n = 2 ** l
+            temp = ""
+            
+            for n in output[l]:
+                temp += str(n).center(line_width // len(output[l]))
 
-            S = (last_level_size - 2 * padding)         # d = spaces between elements
-            d = ((S - n) // (n - 1)) if n > 1 else 0    # (n - 1) * (d + 1) + 1 = S; nd + n - d - 1 + 1 = S; nd + n - d = S; d(n - 1) = S - n; d = S - n // n - 1
-
-            space = ' ' * spacing
-            output_str += space * padding
-            
-            for i in range(n - 1):
-                output_str += str(output[l][i]) + (space * d)
-            
-            output_str += str(output[l][-1])
-            output_str += space * padding
-            
-            output_str += '\n'
+            output_str += temp
+            output_str += line_space * '\n'
         
         return output_str
+    
+import unittest
+from random import randint
 
-def test():
-    A = [1,3,5,7,9,11]
-    S = SegmentTree(A, lambda x, y: x + y)
+class TestSegmentTree(unittest.TestCase):
+    def get_random_array(self, minimum: int = -1000, maximum: int = 1000, length: int = 100) -> list[int]:
+        return [randint(minimum, maximum) for _ in range(length)]
+    
+    def get_prefix_sums(self, A: list[int]) -> list[int]:
+        ps = []
+        p = 0
 
-    print(S)
-    print(S.get_interval(1, 4))
+        for n in A:
+            p += n
+            ps.append(p)
+        
+        return ps
 
-test()
+    def test_build(self):
+        A = self.get_random_array()
+        P = self.get_prefix_sums(A)
+        S = SegmentTree(A, lambda x, y: x + y)
+
+        N = len(A)
+
+        for i in range(N):
+            for j in range(i, N):
+                x = P[j] - (P[i - 1] if i - 1 >= 0 else 0)
+                y = S.get_interval(i, j)
+
+                self.assertEqual(x, y)
+
+    def test_update(self):
+        A = self.get_random_array()
+        S = SegmentTree(A, lambda x, y: x + y)
+        N = len(A)
+
+        for _ in range(N):
+            i = randint(0, N - 1)
+            n = randint(-1000, 1000)
+
+            S.update(i, n)
+            A[i] = n
+
+        P = self.get_prefix_sums(A)
+
+        for i in range(N):
+            for j in range(i, N):
+                x = P[j] - (P[i - 1] if i - 1 >= 0 else 0)
+                y = S.get_interval(i, j)
+
+                self.assertEqual(x, y)
+
+
+if __name__ == '__main__':
+    unittest.main()
