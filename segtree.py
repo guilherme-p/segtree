@@ -112,4 +112,5 @@ class SegmentTree:
             output_str += ' ' * padding
             
             output_str += '\n'
-            
+        
+        return output_str
