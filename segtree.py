@@ -68,7 +68,48 @@ class SegmentTree:
     def get_right_child(self, n: int) -> int:
         return 2 * n + 2
     
-    def print(self, )
-        #    A
-        #  A   B
-        # A B C D
+    def __str__(self, max_level: int = 8) -> str:
+        #        A        
+        #    A       B    
+        #  A   B   C   D  
+        # A B C D E F G H 
+        from math import log2, ceil
+
+        output = []
+        levels = ceil(log2(self.N)) + 1
+
+        exp = 0
+        current_level = []
+
+        for i in range(len(self.tree)):
+            current_level.append(self.tree[i])
+
+            if len(current_level) == 2 ** exp:
+                output.append(current_level)
+                current_level.clear()
+                exp += 1
+
+                if exp + 1 == max(max_level, levels):
+                    break
+        
+
+        output_str = ""
+        last_level_size = 1 + 2 * len(output[-1])
+
+        for l in range(levels):
+            padding = 2 ** (levels - l - 1)
+            n = 2 ** l
+
+            S = (last_level_size - 2 * padding)         # d = spaces between elements
+            d = (S - n) // (n - 1)                      # (n - 1) * (d + 1) + 1 = S; nd + n - d - 1 + 1 = S; nd + n - d = S; d(n - 1) = S - n; d = S - n // n - 1
+
+            output_str += ' ' * padding
+            
+            for i in range(n - 1):
+                output_str += str(output[l][i]) + (' ' * d)
+            
+            output_str += output[l][-1]
+            output_str += ' ' * padding
+            
+            output_str += '\n'
+            
