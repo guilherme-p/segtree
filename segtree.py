@@ -73,10 +73,27 @@ class SegmentTree:
         return 2 * n + 2
     
     def __str__(self, max_level: int = 8, spacing: int = 2) -> str:
-        #        A        
-        #    A       B    
-        #  A   B   C   D  
-        # A B C D E F G H 
+        """
+        >>> a = [1,2,3,4,5,6,7,8]
+        >>> S = SegmentTree(a, lambda x, y: x + y)
+        >>> print(S)
+
+                                    36
+
+
+
+                10                      26
+
+
+
+            3           7           11          15
+
+
+
+         1     2     3     4     5     6     7     8
+
+        """
+
         from math import log2, ceil
 
         output = []
