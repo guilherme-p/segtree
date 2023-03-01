@@ -78,7 +78,7 @@ class SegmentTree:
         >>> S = SegmentTree(a, lambda x, y: x + y)
         >>> print(S)
 
-                                    36
+                            36
 
 
 
@@ -97,7 +97,7 @@ class SegmentTree:
         from math import log2, ceil
 
         output = []
-        levels = ceil(log2(self.N)) + 1
+        levels = max(ceil(log2(self.N)) + 1, max_level)
 
         exp = 0
         current_level = []
