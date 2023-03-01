@@ -1,5 +1,3 @@
-# Simple, recursive implementation of a segment tree, with unit tests and visualization.
-
 ## Usage
 
 ### Range sum queries
