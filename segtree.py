@@ -97,7 +97,7 @@ class SegmentTree:
         from math import log2, ceil
 
         output = []
-        levels = max(ceil(log2(self.N)) + 1, max_level)
+        levels = min(ceil(log2(self.N)) + 1, max_level)
 
         exp = 0
         current_level = []
